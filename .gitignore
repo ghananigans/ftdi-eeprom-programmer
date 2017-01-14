@@ -1,0 +1,11 @@
+# Ignore object files
+*.o
+
+# Ignore build files
+build/*
+
+# Ignore MacOS files
+.DS_Store
+
+# Always keep .keep
+!.keep
