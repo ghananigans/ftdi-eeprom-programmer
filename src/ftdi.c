@@ -8,7 +8,11 @@
 #define FTDI_DEBUG_PRINT(x) fprintf x
 #else
 #define FTDI_DEBUG_PRINT(x) /* DEBUG MODE DISABLED */
-#endif
+#endif // ifdef DEBUG
+
+#ifdef __cplusplus
+extern "C" {
+#endif // ifdef __cplusplus
 
 static
 FT_STATUS
@@ -220,3 +224,7 @@ ftdi_read_and_program_eeprom (
 
     return ft_status;
 }
+
+#ifdef __cplusplus
+}
+#endif // ifdef __cplusplus

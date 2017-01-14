@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <ftd2xx/bin/ftd2xx.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif // ifdef __cplusplus
+
 FT_STATUS
 ftdi_list_devices (
     DWORD * num_devices
@@ -34,4 +38,8 @@ ftdi_program_eeprom (
     char * new_description
     );
 
-#endif
+#ifdef __cplusplus
+}
+#endif // ifdef __cplusplus
+
+#endif // ifndef __FTDI_H__

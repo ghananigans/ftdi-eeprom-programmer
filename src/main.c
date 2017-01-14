@@ -33,7 +33,7 @@ main (
     current_pid = 0x6002; // Current PID of device
     new_vid = 0x0403;     // New VID of device
     new_pid = 0x6001;     // New PID of device
-    new_description = "USB <-> Serial Converter\0"; // New USB String description
+    new_description = (char *) "USB <-> Serial Converter\0"; // New USB String description
 
     if (!FT_SUCCESS(ftdi_configure_vid_pid(current_vid, current_pid)))
     {
