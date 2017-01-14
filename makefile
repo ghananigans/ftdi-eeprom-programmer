@@ -18,13 +18,18 @@ BUILD_DIR = build
 default: build
 all: default
 
+HEADERS = \
+	$(SOURCE_DIR)/ftdi.h
+
 OBJECTS = \
+	$(OBJECT_DIR)/ftdi.o \
 	$(OBJECT_DIR)/main.o
 
 BUILD = \
 	$(BUILD_DIR)/ftdi_flasher
 
-$(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.c
+
+$(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PRECIOUS: $(TARGET) $(OBJECTS)

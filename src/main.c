@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ftd2xx/bin/ftd2xx.h>
+#include <assert.h>
+
+#include "ftdi.h"
 
 #ifdef DEBUG
 #define DEBUG_PRINT(x) fprintf x
@@ -14,28 +16,30 @@ main (
     char ** argv
     )
 {
-    FT_STATUS ft_status;
     FT_HANDLE ft_handle;
-    DWORD num_devices;
 
     fprintf(stdout, "FTDI Reprogrammer\n");
 
-    ft_status = FT_SetVIDPID(0x0403, 0xA6D0);
-    if (!FT_SUCCESS(ft_status))
+    if (!FT_SUCCESS(ftdi_configure_vid_pid(0x0403, 0x6001)))
     {
-        fprintf(stdout, "[%s:%d] Failed\n", __FUNCTION__, __LINE__);
+        fprintf(stderr, "Failed to configure VID and PID\n");
         return -1;
     }
 
-    ft_status = FT_CreateDeviceInfoList(&num_devices);
-    if (!FT_SUCCESS(ft_status))
+    if (!FT_SUCCESS(ftdi_list_devices()))
     {
-        fprintf(stdout, "[%s:%d] Failed\n", __FUNCTION__, __LINE__);
-        return -1;
+        fprintf(stderr, "Failed to list devices\n");
     }
 
-    fprintf(stdout, "Number of devices: %d\n", num_devices);
+    if (!FT_SUCCESS(ftdi_open(0, &ft_handle)))
+    {
+        fprintf(stderr, "Failed to open handle\n");
+    }
 
 
+    if (!FT_SUCCESS(ftdi_read_eeprom(&ft_handle)))
+    {
+        fprintf(stderr, "Failed to read eeprom\n");
+    }
     return 0;
 }
