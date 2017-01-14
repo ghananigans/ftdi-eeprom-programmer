@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
+
 #include "ftdi.h"
 
 #ifdef DEBUG
@@ -8,37 +10,50 @@
 #define FTDI_DEBUG_PRINT(x) /* DEBUG MODE DISABLED */
 #endif
 
+
+static
+FT_STATUS
+ftdi_read_and_program_eeprom (
+    FT_HANDLE * ft_handle,
+    uint8_t read_only,
+    uint16_t new_vid,
+    uint16_t new_pid,
+    char * new_description
+    );
+
+
 FT_STATUS
 ftdi_list_devices (
-    void
+    DWORD * num_devices
     )
 {
     FT_STATUS ft_status;
-    DWORD num_devices;
     FT_DEVICE_LIST_INFO_NODE * device_infos;
 
-    ft_status = FT_CreateDeviceInfoList(&num_devices);
+    assert(num_devices);
+
+    ft_status = FT_CreateDeviceInfoList(num_devices);
     if (!FT_SUCCESS(ft_status))
     {
         FTDI_DEBUG_PRINT((stderr, "[%s:%d] Failed with error code %d\n", __FUNCTION__, __LINE__, ft_status));
         return ft_status;
     }
 
-    fprintf(stdout, "Number of devices: %d\n", num_devices);
+    fprintf(stdout, "Number of devices: %d\n", *num_devices);
 
-    if (num_devices > 0) {
+    if (*num_devices > 0) {
         // allocate storage for list based on numDevs
-        device_infos = (FT_DEVICE_LIST_INFO_NODE *) malloc(sizeof(FT_DEVICE_LIST_INFO_NODE) * num_devices);
+        device_infos = (FT_DEVICE_LIST_INFO_NODE *) malloc(sizeof(FT_DEVICE_LIST_INFO_NODE) * (*num_devices));
 
         // get the device information list
-        ft_status = FT_GetDeviceInfoList(device_infos, &num_devices);
+        ft_status = FT_GetDeviceInfoList(device_infos, num_devices);
         if (!FT_SUCCESS(ft_status))
         {
             FTDI_DEBUG_PRINT((stderr, "[%s:%d] Failed with error code %d\n", __FUNCTION__, __LINE__, ft_status));
             return ft_status;
         }
 
-        for (int i = 0; i < num_devices; i++) {
+        for (int i = 0; i < *num_devices; i++) {
             printf("Dev %d:\n",i);
             printf(" Flags=0x%x\n", device_infos[i].Flags);
             printf(" Type=0x%x\n", device_infos[i].Type);
@@ -63,7 +78,7 @@ ftdi_configure_vid_pid (
 {
     FT_STATUS ft_status;
 
-    ft_status = FT_SetVIDPID(0x0403, 0xA6D0);
+    ft_status = FT_SetVIDPID(vid, pid);
     if (!FT_SUCCESS(ft_status))
     {
         FTDI_DEBUG_PRINT((stderr, "[%s:%d] Failed with error code %d\n", __FUNCTION__, __LINE__, ft_status));
@@ -90,8 +105,32 @@ ftdi_open (
 }
 
 FT_STATUS
-ftdi_read_and_program_eeprom (
+ftdi_read_eeprom (
     FT_HANDLE * ft_handle
+    )
+{
+    return ftdi_read_and_program_eeprom(ft_handle, 1, 0, 0, 0);
+}
+
+FT_STATUS
+ftdi_program_eeprom (
+    FT_HANDLE * ft_handle,
+    uint16_t new_vid,
+    uint16_t new_pid,
+    char * new_description
+    )
+{
+    return ftdi_read_and_program_eeprom(ft_handle, 0, new_vid, new_pid, new_description);
+}
+
+static
+FT_STATUS
+ftdi_read_and_program_eeprom (
+    FT_HANDLE * ft_handle,
+    uint8_t read_only,
+    uint16_t new_vid,
+    uint16_t new_pid,
+    char * new_description
     )
 {
     FT_STATUS ft_status;
@@ -113,16 +152,43 @@ ftdi_read_and_program_eeprom (
     if (!FT_SUCCESS(ft_status))
     {
         FTDI_DEBUG_PRINT((stderr, "[%s:%d] Failed with error code %d\n", __FUNCTION__, __LINE__, ft_status));
+        return ft_status;
     }
-    else
+
+    fprintf(stdout, "Manufacturer: %s\n", manufacturer);
+    fprintf(stdout, "ManufacturerId: %s\n", manufacturer_id);
+    fprintf(stdout, "Description: %s\n", description);
+    fprintf(stdout, "Serial Number: %s\n", serial_number);
+    fprintf(stdout, "VID: 0x%x\n", ft_prog_data.VendorId);
+    fprintf(stdout, "PID: 0x%x\n", ft_prog_data.ProductId);
+
+    if (read_only)
     {
-        fprintf(stdout, "Manufacturer: %s\n", manufacturer);
-        fprintf(stdout, "ManufacturerId: %s\n", manufacturer_id);
-        fprintf(stdout, "Description: %s\n", description);
-        fprintf(stdout, "Serial Number: %s\n", serial_number);
-        fprintf(stdout, "VID: 0x%x\n", ft_prog_data.VendorId);
-        fprintf(stdout, "PID: 0x%x\n", ft_prog_data.ProductId);
+        return ft_status;
     }
+
+    // New Vendor Id and Product ID
+    if (new_vid)
+    {
+        ft_prog_data.VendorId = new_vid;
+    }
+
+    if (new_pid)
+    {
+        ft_prog_data.ProductId = new_pid;
+    }
+
+    if (new_description)
+    {
+        ft_prog_data.Description = new_description;
+    }
+
+    ft_status = FT_EE_Program(*ft_handle, &ft_prog_data);
+    if (!FT_SUCCESS(ft_status))
+    {
+        FTDI_DEBUG_PRINT((stderr, "[%s:%d] Failed with error code %d\n", __FUNCTION__, __LINE__, ft_status));
+    }
+
 
     return ft_status;
 }

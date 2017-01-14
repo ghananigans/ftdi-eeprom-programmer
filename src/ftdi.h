@@ -6,7 +6,7 @@
 
 FT_STATUS
 ftdi_list_devices (
-    void
+    DWORD * num_devices
     );
 
 FT_STATUS
@@ -26,5 +26,12 @@ ftdi_read_eeprom (
     FT_HANDLE * ft_handle
     );
 
+FT_STATUS
+ftdi_program_eeprom (
+    FT_HANDLE * ft_handle,
+    uint16_t new_vid,
+    uint16_t new_pid,
+    char * new_description
+    );
 
 #endif
