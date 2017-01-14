@@ -7,7 +7,7 @@ CFLAGS = \
 
 INCLUDE = \
 	-L./libs/ftd2xx/bin/10.5-10.7 \
-	-lftd2xx.1.2.2\
+	-lftd2xx.1.2.2
 
 OBJECT_DIR = obj
 SOURCE_DIR = src

@@ -10,7 +10,6 @@
 #define FTDI_DEBUG_PRINT(x) /* DEBUG MODE DISABLED */
 #endif
 
-
 static
 FT_STATUS
 ftdi_read_and_program_eeprom (
@@ -21,7 +20,9 @@ ftdi_read_and_program_eeprom (
     char * new_description
     );
 
-
+//
+// List all devices with matching VID and PID as set earlier
+//
 FT_STATUS
 ftdi_list_devices (
     DWORD * num_devices
@@ -70,6 +71,10 @@ ftdi_list_devices (
     return ft_status;
 }
 
+//
+// Set VID and PID so the D2XX driver can find matching
+// devices (if programming eeprom, use current vid and pid)
+//
 FT_STATUS
 ftdi_configure_vid_pid (
     uint16_t vid,
@@ -87,6 +92,9 @@ ftdi_configure_vid_pid (
     return ft_status;
 }
 
+//
+// Get a handle to an device
+//
 FT_STATUS
 ftdi_open (
     int index,
@@ -104,6 +112,9 @@ ftdi_open (
     return ft_status;
 }
 
+//
+// Read the eeprom
+//
 FT_STATUS
 ftdi_read_eeprom (
     FT_HANDLE * ft_handle
@@ -112,6 +123,9 @@ ftdi_read_eeprom (
     return ftdi_read_and_program_eeprom(ft_handle, 1, 0, 0, 0);
 }
 
+//
+// Read and Program the eeprom
+//
 FT_STATUS
 ftdi_program_eeprom (
     FT_HANDLE * ft_handle,
@@ -123,6 +137,9 @@ ftdi_program_eeprom (
     return ftdi_read_and_program_eeprom(ft_handle, 0, new_vid, new_pid, new_description);
 }
 
+//
+// This function will read and/or program the eeprom
+//
 static
 FT_STATUS
 ftdi_read_and_program_eeprom (
@@ -148,6 +165,13 @@ ftdi_read_and_program_eeprom (
     ft_prog_data.Description = description;
     ft_prog_data.SerialNumber = serial_number;
 
+    //
+    // Do a read of the eeprom.
+    // If programming, we need this so when programming,
+    // fields other than the vid, pid and string description are
+    // untouched (Read before Write) since this function can't write to
+    // JUST the pid, vid and string description
+    //
     ft_status = FT_EE_Read(*ft_handle, &ft_prog_data);
     if (!FT_SUCCESS(ft_status))
     {
@@ -164,6 +188,7 @@ ftdi_read_and_program_eeprom (
 
     if (read_only)
     {
+        // Read the eeprom only.
         return ft_status;
     }
 
@@ -183,6 +208,9 @@ ftdi_read_and_program_eeprom (
         ft_prog_data.Description = new_description;
     }
 
+    //
+    // Program the prom
+    //
     ft_status = FT_EE_Program(*ft_handle, &ft_prog_data);
     if (!FT_SUCCESS(ft_status))
     {

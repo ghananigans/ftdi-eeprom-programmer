@@ -1,0 +1,4 @@
+Simple eeprom programmer for an ft232R chip I had. I use a mac and FTDI's FT_PROG is only for windows, so I decided to write a simple tool to flash the eeprom for me :)
+If programming a brand new/stock ft232R chip, mac users may need to install D2XXHelper so that it prevents macos from using their own drivers for the ftdi chip which will prevent this tool from working.
+
+I only tested with ft232r (since i needed something to flash the eeprom asap), and even with my ft232r chip, I did minimal testing. Use at your own risk.
