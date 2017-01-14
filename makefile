@@ -2,7 +2,12 @@ CC = clang
 CFLAGS = \
 	-g \
 	-Wall \
-	-DDEBUG
+	-DDEBUG \
+	-Ilibs
+
+INCLUDE = \
+	-L./libs/ftd2xx/bin/10.5-10.7 \
+	-lftd2xx.1.2.2\
 
 OBJECT_DIR = obj
 SOURCE_DIR = src
@@ -25,7 +30,7 @@ $(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.c
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(BUILD_DIR)/ftdi_flasher: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o $@
+	$(CC) $(CFLAGS) $(INCLUDE) $(OBJECTS) -o $@
 
 build: $(BUILD)
 
