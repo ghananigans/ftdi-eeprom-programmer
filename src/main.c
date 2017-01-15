@@ -23,6 +23,7 @@ main (
     char * new_description;
     int ftdi_open_index;
     DWORD num_devices;
+    int device_type;
 
     fprintf(stdout, "FTDI Reprogrammer\n");
 
@@ -30,10 +31,11 @@ main (
     // TODO: Get user input for this.
     //
     current_vid = 0x0403; // Current VID of device
-    current_pid = 0x6002; // Current PID of device
+    current_pid = 0xA6D0; // Current PID of device
     new_vid = 0x0403;     // New VID of device
     new_pid = 0x6001;     // New PID of device
-    new_description = (char *) "USB <-> Serial Converter\0"; // New USB String description
+    new_description = (char *) "USB <-> Serial Converter\0"; // New USB String description (No more than 64 characters)
+    device_type = FT_DEVICE_232R; // Device type
 
     if (!FT_SUCCESS(ftdi_configure_vid_pid(current_vid, current_pid)))
     {
@@ -68,14 +70,14 @@ main (
     getchar();
 
     fprintf(stdout, "Before Programming:\n");
-    if (!FT_SUCCESS(ftdi_program_eeprom(&ft_handle, new_vid, new_pid, new_description)))
+    if (!FT_SUCCESS(ftdi_program_eeprom(&ft_handle, device_type, new_vid, new_pid, new_description)))
     {
         fprintf(stderr, "Failed to read eeprom\n");
         return -1;
     }
 
     fprintf(stdout, "\nAfter Proramming:\n");
-    if (!FT_SUCCESS(ftdi_read_eeprom(&ft_handle)))
+    if (!FT_SUCCESS(ftdi_read_eeprom(&ft_handle, device_type)))
     {
         fprintf(stderr, "Failed to read eeprom\n");
         return -1;

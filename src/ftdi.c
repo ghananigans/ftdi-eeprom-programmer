@@ -18,6 +18,7 @@ static
 FT_STATUS
 ftdi_read_and_program_eeprom (
     FT_HANDLE * ft_handle,
+    int device_type,
     uint8_t read_only,
     uint16_t new_vid,
     uint16_t new_pid,
@@ -121,10 +122,11 @@ ftdi_open (
 //
 FT_STATUS
 ftdi_read_eeprom (
-    FT_HANDLE * ft_handle
+    FT_HANDLE * ft_handle,
+    int device_type
     )
 {
-    return ftdi_read_and_program_eeprom(ft_handle, 1, 0, 0, 0);
+    return ftdi_read_and_program_eeprom(ft_handle, device_type, 1, 0, 0, 0);
 }
 
 //
@@ -133,12 +135,13 @@ ftdi_read_eeprom (
 FT_STATUS
 ftdi_program_eeprom (
     FT_HANDLE * ft_handle,
+    int device_type,
     uint16_t new_vid,
     uint16_t new_pid,
     char * new_description
     )
 {
-    return ftdi_read_and_program_eeprom(ft_handle, 0, new_vid, new_pid, new_description);
+    return ftdi_read_and_program_eeprom(ft_handle, device_type, 0, new_vid, new_pid, new_description);
 }
 
 //
@@ -148,6 +151,7 @@ static
 FT_STATUS
 ftdi_read_and_program_eeprom (
     FT_HANDLE * ft_handle,
+    int device_type,
     uint8_t read_only,
     uint16_t new_vid,
     uint16_t new_pid,
@@ -163,7 +167,7 @@ ftdi_read_and_program_eeprom (
     FT_PROGRAM_DATA ft_prog_data;
     ft_prog_data.Signature1 = 0x0;
     ft_prog_data.Signature2 = 0xffffffff;
-    ft_prog_data.Version = FT_DEVICE_232R;
+    ft_prog_data.Version = device_type;
     ft_prog_data.Manufacturer = manufacturer;
     ft_prog_data.ManufacturerId = manufacturer_id;
     ft_prog_data.Description = description;
