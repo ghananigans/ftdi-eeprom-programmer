@@ -27,12 +27,14 @@ ftdi_open (
 
 FT_STATUS
 ftdi_read_eeprom (
-    FT_HANDLE * ft_handle
+    FT_HANDLE * ft_handle,
+    int device_type
     );
 
 FT_STATUS
 ftdi_program_eeprom (
     FT_HANDLE * ft_handle,
+    int device_type,
     uint16_t new_vid,
     uint16_t new_pid,
     char * new_description
